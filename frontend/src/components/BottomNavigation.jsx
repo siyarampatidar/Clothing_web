@@ -1,51 +1,86 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { FiHome, FiHeart, FiShoppingBag, FiUser, FiGrid, FiX, FiArrowRight } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { fetchCategories } from '../redux/categorySlice';
-import { fetchProducts } from '../redux/productSlice';
-
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  FiHome,
+  FiHeart,
+  FiShoppingBag,
+  FiUser,
+  FiGrid,
+  FiX,
+  FiArrowRight,
+} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
+import { fetchCategories } from "../redux/categorySlice";
+import { fetchProducts } from "../redux/productSlice";
 
 // SUBCATEGORY_IMAGES mapping for a highly premium presentation matching the branding
 const SUBCATEGORY_IMAGES = {
-  shirt: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=250&q=80',
-  shirts: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=250&q=80',
-  tshirt: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80',
-  tshirts: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80',
-  't-shirt': 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80',
-  't-shirts': 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80',
-  pants: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80',
-  pant: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80',
-  jeans: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=250&q=80',
-  jean: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=250&q=80',
-  trousers: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80',
-  trouser: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80',
-  dress: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=250&q=80',
-  dresses: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=250&q=80',
-  saree: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=250&q=80',
-  sarees: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=250&q=80',
-  kurta: 'https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80',
-  kurtas: 'https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80',
-  kurti: 'https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80',
-  kurtis: 'https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80',
-  shoes: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=250&q=80',
-  shoe: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=250&q=80',
-  jacket: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=250&q=80',
-  jackets: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=250&q=80',
-  hoodie: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80',
-  hoodies: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80',
-  sweatshirt: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80',
-  sweatshirts: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80',
-  top: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=250&q=80',
-  tops: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=250&q=80',
-  belt: 'https://images.unsplash.com/photo-1624222247344-550fb8ec2780?auto=format&fit=crop&w=250&q=80',
-  belts: 'https://images.unsplash.com/photo-1624222247344-550fb8ec2780?auto=format&fit=crop&w=250&q=80',
-  cap: 'https://images.unsplash.com/photo-1534215754734-18e55d13e346?auto=format&fit=crop&w=250&q=80',
-  caps: 'https://images.unsplash.com/photo-1534215754734-18e55d13e346?auto=format&fit=crop&w=250&q=80',
-  skirt: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=250&q=80',
-  skirts: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=250&q=80',
+  shirt:
+    "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=250&q=80",
+  shirts:
+    "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=250&q=80",
+  tshirt:
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80",
+  tshirts:
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80",
+  "t-shirt":
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80",
+  "t-shirts":
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=250&q=80",
+  pants:
+    "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80",
+  pant: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80",
+  jeans:
+    "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=250&q=80",
+  jean: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=250&q=80",
+  trousers:
+    "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80",
+  trouser:
+    "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=250&q=80",
+  dress:
+    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=250&q=80",
+  dresses:
+    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=250&q=80",
+  saree:
+    "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=250&q=80",
+  sarees:
+    "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=250&q=80",
+  kurta:
+    "https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80",
+  kurtas:
+    "https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80",
+  kurti:
+    "https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80",
+  kurtis:
+    "https://images.unsplash.com/photo-1608748010899-18f300247112?auto=format&fit=crop&w=250&q=80",
+  shoes:
+    "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=250&q=80",
+  shoe: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=250&q=80",
+  jacket:
+    "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=250&q=80",
+  jackets:
+    "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=250&q=80",
+  hoodie:
+    "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80",
+  hoodies:
+    "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80",
+  sweatshirt:
+    "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80",
+  sweatshirts:
+    "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80",
+  top: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=250&q=80",
+  tops: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=250&q=80",
+  belt: "https://images.unsplash.com/photo-1624222247344-550fb8ec2780?auto=format&fit=crop&w=250&q=80",
+  belts:
+    "https://images.unsplash.com/photo-1624222247344-550fb8ec2780?auto=format&fit=crop&w=250&q=80",
+  cap: "https://images.unsplash.com/photo-1534215754734-18e55d13e346?auto=format&fit=crop&w=250&q=80",
+  caps: "https://images.unsplash.com/photo-1534215754734-18e55d13e346?auto=format&fit=crop&w=250&q=80",
+  skirt:
+    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=250&q=80",
+  skirts:
+    "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=250&q=80",
 };
 
 const getSubcategoryImage = (subName) => {
@@ -60,7 +95,7 @@ const getSubcategoryImage = (subName) => {
     }
   }
   // Generic fallback premium fashion item photo
-  return 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=250&q=80';
+  return "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=250&q=80";
 };
 
 const BottomNavigation = () => {
@@ -73,7 +108,7 @@ const BottomNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  
+
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [activeCatId, setActiveCatId] = useState(null);
 
@@ -89,42 +124,46 @@ const BottomNavigation = () => {
     }
   }, [categories, activeCatId]);
 
-  const activeCategory = categories.find((cat) => cat._id === activeCatId) || categories[0];
+  const activeCategory =
+    categories.find((cat) => cat._id === activeCatId) || categories[0];
 
   const navItemsLeft = [
-    { label: 'Home', icon: FiHome, path: '/home' },
-    { label: 'Wishlist', icon: FiHeart, path: '/wishlist' },
+    { label: "Home", icon: FiHome, path: "/home" },
+    { label: "Wishlist", icon: FiHeart, path: "/wishlist" },
   ];
 
   const navItemsRight = [
-    { label: 'Cart', icon: FiShoppingBag, path: '/cart' },
-    { label: 'Account', icon: FiUser, path: '/account' },
+    { label: "Cart", icon: FiShoppingBag, path: "/cart" },
+    { label: "Account", icon: FiUser, path: "/account" },
   ];
 
   // Helper to check active state
   const isActive = (path) => {
-    if (path === '/home' && currentPath === '/') return true;
+    if (path === "/home" && currentPath === "/") return true;
     return currentPath === path;
   };
 
   const handleCategoryClick = (categoryObj) => {
     setIsCategorySheetOpen(false);
-    toast.success(`Browsing silhouette: ${categoryObj.categoryName} in CJM Atelier`);
+    // toast.success(
+    //   `Browsing silhouette: ${categoryObj.categoryName} in CJM Atelier`,
+    // );
     navigate(`/collection?category=${categoryObj._id}`);
   };
 
   const handleSubcategoryClick = (categoryId, subcategoryName) => {
     setIsCategorySheetOpen(false);
     toast.success(`Browsing: ${subcategoryName} in CJM Atelier`);
-    navigate(`/collection?category=${categoryId}&subcategory=${encodeURIComponent(subcategoryName)}`);
+    navigate(
+      `/collection?category=${categoryId}&subcategory=${encodeURIComponent(subcategoryName)}`,
+    );
   };
 
   return (
     <>
-      {/* 1. FLOATING BOTTOM NAVIGATION BAR */}
-      <div className="fixed bottom-0 left-0 right-0 w-full z-40 select-none">
+      {/* 1. FLOATING BOTTOM NAVIGATION BAR — hidden on lg+ (desktop uses navbar) */}
+      <div className="fixed bottom-0 left-0 right-0 w-full z-40 select-none lg:hidden">
         <div className="luxury-card bg-white/90 backdrop-blur-xl border-t border-primary/20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] rounded-t-[28px] py-3 px-6 sm:px-12 flex justify-between items-center relative max-w-2xl mx-auto">
-          
           {/* Left Side Actions */}
           <div className="flex flex-1 justify-around items-center">
             {navItemsLeft.map((item) => {
@@ -140,25 +179,33 @@ const BottomNavigation = () => {
                   {active && (
                     <motion.div
                       layoutId="activeBottomTab"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
                       className="absolute -top-3 w-8 h-[3px] bg-primary rounded-full"
                     />
                   )}
                   <div className="relative">
                     <Icon
                       className={`w-5 h-5 transition-all duration-300 ${
-                        active ? 'text-primary scale-110' : 'text-luxury-gray hover:text-luxury-black'
+                        active
+                          ? "text-primary scale-110"
+                          : "text-luxury-gray hover:text-luxury-black"
                       }`}
                     />
-                    {item.label === 'Wishlist' && wishlistItems.length > 0 && (
+                    {item.label === "Wishlist" && wishlistItems.length > 0 && (
                       <span className="absolute -top-1 -right-1.5 bg-red-500 text-white font-sans text-[7px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-xs">
                         {wishlistItems.length}
                       </span>
                     )}
                   </div>
-                  <span className={`text-[9px] font-bold uppercase tracking-wider mt-1 transition-colors ${
-                    active ? 'text-primary' : 'text-luxury-gray'
-                  }`}>
+                  <span
+                    className={`text-[9px] font-bold uppercase tracking-wider mt-1 transition-colors ${
+                      active ? "text-primary" : "text-luxury-gray"
+                    }`}
+                  >
                     {item.label}
                   </span>
                 </Link>
@@ -174,9 +221,9 @@ const BottomNavigation = () => {
               whileHover={{ scale: 1.08, y: -2 }}
               whileTap={{ scale: 0.94 }}
               className={`w-14 h-14 rounded-full flex flex-col items-center justify-center shadow-[0_10px_35px_-5px_rgba(197,160,89,0.35)] border border-primary/30 transition-all cursor-pointer relative overflow-hidden select-none outline-hidden ${
-                isCategorySheetOpen 
-                  ? 'bg-primary text-white border-white/20 shadow-[0_10px_35px_-5px_rgba(197,160,89,0.5)]'
-                  : 'bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-950 text-white'
+                isCategorySheetOpen
+                  ? "bg-primary text-white border-white/20 shadow-[0_10px_35px_-5px_rgba(197,160,89,0.5)]"
+                  : "bg-gradient-to-tr from-zinc-950 via-zinc-900 to-zinc-950 text-white"
               }`}
             >
               <AnimatePresence mode="wait">
@@ -200,7 +247,9 @@ const BottomNavigation = () => {
                     className="flex flex-col items-center justify-center"
                   >
                     <FiGrid className="w-5 h-5 text-primary-light" />
-                    <span className="text-[8px] font-bold tracking-widest text-primary uppercase mt-0.5">Shop</span>
+                    <span className="text-[8px] font-bold tracking-widest text-primary uppercase mt-0.5">
+                      Shop
+                    </span>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -222,32 +271,42 @@ const BottomNavigation = () => {
                   {active && (
                     <motion.div
                       layoutId="activeBottomTab"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
                       className="absolute -top-3 w-8 h-[3px] bg-primary rounded-full"
                     />
                   )}
                   <div className="relative">
                     <Icon
                       className={`w-5 h-5 transition-all duration-300 ${
-                        active ? 'text-primary scale-110' : 'text-luxury-gray hover:text-luxury-black'
+                        active
+                          ? "text-primary scale-110"
+                          : "text-luxury-gray hover:text-luxury-black"
                       }`}
                     />
-                    {item.label === 'Cart' && cartItems.length > 0 && (
+                    {item.label === "Cart" && cartItems.length > 0 && (
                       <span className="absolute -top-1 -right-1.5 bg-primary text-white font-sans text-[7px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white shadow-xs">
-                        {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                        {cartItems.reduce(
+                          (sum, item) => sum + item.quantity,
+                          0,
+                        )}
                       </span>
                     )}
                   </div>
-                  <span className={`text-[9px] font-bold uppercase tracking-wider mt-1 transition-colors ${
-                    active ? 'text-primary' : 'text-luxury-gray'
-                  }`}>
+                  <span
+                    className={`text-[9px] font-bold uppercase tracking-wider mt-1 transition-colors ${
+                      active ? "text-primary" : "text-luxury-gray"
+                    }`}
+                  >
                     {item.label}
                   </span>
                 </Link>
               );
             })}
           </div>
-
         </div>
       </div>
 
@@ -266,17 +325,21 @@ const BottomNavigation = () => {
 
             {/* Sliding Container (Full Screen Overlay Modal) */}
             <motion.div
-              initial={{ y: '100%', opacity: 0.95 }}
+              initial={{ y: "100%", opacity: 0.95 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0.95 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+              exit={{ y: "100%", opacity: 0.95 }}
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
               className="fixed inset-0 w-full h-[100dvh] bg-white z-50 overflow-hidden flex flex-col"
             >
               {/* Header details */}
               <div className="flex justify-between items-center px-6 pt-12 pb-4.5 border-b border-primary/10 bg-white/40 sm:pt-6">
                 <div>
-                  <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">DESIGN HOUSE</span>
-                  <h3 className="text-xl font-normal text-zinc-950 font-display">Featured Collections</h3>
+                  <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">
+                    DESIGN HOUSE
+                  </span>
+                  <h3 className="text-xl font-normal text-zinc-950 font-display">
+                    Featured Collections
+                  </h3>
                 </div>
                 <button
                   onClick={() => setIsCategorySheetOpen(false)}
@@ -292,43 +355,57 @@ const BottomNavigation = () => {
                 <div className="w-[110px] sm:w-[145px] bg-zinc-50 border-r border-primary/10 overflow-y-auto flex-shrink-0 scrollbar-none flex flex-col pb-12">
                   {categories.map((cat, idx) => {
                     const isActive = activeCatId === cat._id;
-                    const imageUrl = cat.categoryImage?.url || [
-                      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=150&q=80',
-                      'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?auto=format&fit=crop&w=150&q=80',
-                      'https://images.unsplash.com/photo-1505022610485-0249ba5b3675?auto=format&fit=crop&w=150&q=80',
-                      'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=150&q=80',
-                      'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=150&q=80',
-                      'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=150&q=80'
-                    ][idx % 6];
-                    
+                    const imageUrl =
+                      cat.categoryImage?.url ||
+                      [
+                        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=150&q=80",
+                        "https://images.unsplash.com/photo-1554412933-514a83d2f3c8?auto=format&fit=crop&w=150&q=80",
+                        "https://images.unsplash.com/photo-1505022610485-0249ba5b3675?auto=format&fit=crop&w=150&q=80",
+                        "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=150&q=80",
+                        "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=150&q=80",
+                        "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=150&q=80",
+                      ][idx % 6];
+
                     return (
                       <button
                         key={cat._id || idx}
                         onClick={() => setActiveCatId(cat._id)}
                         className={`w-full py-4 px-2 flex flex-col items-center gap-1.5 transition-all text-center border-b border-primary/5 cursor-pointer relative outline-hidden ${
-                          isActive 
-                            ? 'bg-white font-bold text-primary animate-pulse-subtle' 
-                            : 'text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100/50'
+                          isActive
+                            ? "bg-white font-bold text-primary animate-pulse-subtle"
+                            : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100/50"
                         }`}
                       >
                         {isActive && (
                           <div className="absolute left-0 top-2 bottom-2 w-[4px] bg-primary rounded-r-full" />
                         )}
-                        <div className={`w-11 h-11 rounded-full overflow-hidden border transition duration-300 ${
-                          isActive ? 'border-primary scale-105 shadow-xs' : 'border-zinc-200/80'
-                        }`}>
-                          <img src={imageUrl} alt={cat.categoryName} className="w-full h-full object-cover" />
+                        <div
+                          className={`w-11 h-11 rounded-full overflow-hidden border transition duration-300 ${
+                            isActive
+                              ? "border-primary scale-105 shadow-xs"
+                              : "border-zinc-200/80"
+                          }`}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={cat.categoryName}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <span className={`text-[10px] uppercase tracking-wider line-clamp-2 px-1 ${
-                          isActive ? 'font-bold' : 'font-semibold'
-                        }`}>
+                        <span
+                          className={`text-[10px] uppercase tracking-wider line-clamp-2 px-1 ${
+                            isActive ? "font-bold" : "font-semibold"
+                          }`}
+                        >
                           {cat.categoryName}
                         </span>
                       </button>
                     );
                   })}
                   {categories.length === 0 && (
-                    <p className="text-center text-[10px] text-zinc-400 italic py-8">No silhouettes</p>
+                    <p className="text-center text-[10px] text-zinc-400 italic py-8">
+                      No silhouettes
+                    </p>
                   )}
                 </div>
 
@@ -339,14 +416,19 @@ const BottomNavigation = () => {
                       {/* Active Silhouette Banner */}
                       <div className="mb-5 relative rounded-2xl overflow-hidden h-24 sm:h-32 bg-zinc-950 flex items-end p-4 border border-primary/10 shadow-xs flex-shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
-                        <img 
-                          src={activeCategory.categoryImage?.url || 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=600&q=80'} 
-                          alt={activeCategory.categoryName} 
+                        <img
+                          src={
+                            activeCategory.categoryImage?.url ||
+                            "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=600&q=80"
+                          }
+                          alt={activeCategory.categoryName}
                           className="absolute inset-0 w-full h-full object-cover opacity-60 scale-105"
                         />
                         <div className="relative z-20 w-full flex justify-between items-end">
                           <div>
-                            <span className="text-[8px] font-bold tracking-[0.25em] text-primary uppercase block">COLLECTION SILHOUETTE</span>
+                            <span className="text-[8px] font-bold tracking-[0.25em] text-primary uppercase block">
+                              COLLECTION SILHOUETTE
+                            </span>
                             <h4 className="text-base font-normal text-white font-display mt-0.5">
                               {activeCategory.categoryName}
                             </h4>
@@ -362,29 +444,42 @@ const BottomNavigation = () => {
 
                       {/* Subcategories list */}
                       <div className="flex justify-between items-center mb-3.5 px-1 flex-shrink-0">
-                        <span className="text-[9px] font-bold tracking-[0.2em] text-zinc-400 uppercase">CURATED STYLES</span>
-                        {activeCategory.subcategories && activeCategory.subcategories.length > 0 && (
-                          <span className="text-[9px] font-bold text-luxury-gray">{activeCategory.subcategories.length} Styles</span>
-                        )}
+                        <span className="text-[9px] font-bold tracking-[0.2em] text-zinc-400 uppercase">
+                          CURATED STYLES
+                        </span>
+                        {activeCategory.subcategories &&
+                          activeCategory.subcategories.length > 0 && (
+                            <span className="text-[9px] font-bold text-luxury-gray">
+                              {activeCategory.subcategories.length} Styles
+                            </span>
+                          )}
                       </div>
 
-                      {activeCategory.subcategories && activeCategory.subcategories.length > 0 ? (
+                      {activeCategory.subcategories &&
+                      activeCategory.subcategories.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                           {activeCategory.subcategories.map((sub, sIdx) => {
-                            const subImageUrl = getSubcategoryImage(sub.subcategoryName);
+                            const subImageUrl = getSubcategoryImage(
+                              sub.subcategoryName,
+                            );
                             return (
                               <motion.div
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
                                 key={sub._id || sIdx}
-                                onClick={() => handleSubcategoryClick(activeCategory._id, sub.subcategoryName)}
+                                onClick={() =>
+                                  handleSubcategoryClick(
+                                    activeCategory._id,
+                                    sub.subcategoryName,
+                                  )
+                                }
                                 className="luxury-card rounded-xl p-2 flex flex-col items-center text-center cursor-pointer bg-zinc-50/50 hover:bg-white hover:border-primary/40 transition duration-300 border border-primary/5 shadow-xs"
                               >
                                 <div className="w-full aspect-square rounded-lg overflow-hidden border border-zinc-100 bg-zinc-100 mb-2">
-                                  <img 
-                                    src={subImageUrl} 
-                                    alt={sub.subcategoryName} 
-                                    className="w-full h-full object-cover transition duration-500 hover:scale-105" 
+                                  <img
+                                    src={subImageUrl}
+                                    alt={sub.subcategoryName}
+                                    className="w-full h-full object-cover transition duration-500 hover:scale-105"
                                   />
                                 </div>
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-800 line-clamp-1 px-1 mt-0.5">
@@ -416,7 +511,6 @@ const BottomNavigation = () => {
                   )}
                 </div>
               </div>
-
             </motion.div>
           </>
         )}

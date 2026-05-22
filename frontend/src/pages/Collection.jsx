@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -160,9 +160,89 @@ const Collection = () => {
     toast.success("Browsing all CJM silhouettes");
   };
 
+  const FALLBACK_IMAGES = [
+    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=150&q=80',
+    'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?auto=format&fit=crop&w=150&q=80',
+    'https://images.unsplash.com/photo-1505022610485-0249ba5b3675?auto=format&fit=crop&w=150&q=80',
+    'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=150&q=80',
+    'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=150&q=80',
+    'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=150&q=80',
+  ];
+
+  const categoryScrollRef = useRef(null);
+
   return (
     <div className="pb-28 pt- bg-ivory min-h-screen">
-      {/* 1. Header Banner & Filter Dashboard */}
+
+      {/* DESKTOP CATEGORY CIRCLE ROW — lg+ only */}
+      <div className="hidden lg:block sticky top-14 z-30 bg-ivory/90 backdrop-blur-md border-b border-primary/10 shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+          <div
+            ref={categoryScrollRef}
+            className="flex items-start gap-5 overflow-x-auto scrollbar-none py-4 select-none"
+          >
+            {/* ALL pill */}
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="flex flex-col items-center gap-2 flex-shrink-0 group cursor-pointer"
+            >
+              <div
+                className={`w-14 h-14 rounded-full flex items-center justify-center border-2 transition-all duration-200 ${
+                  !selectedCategoryId
+                    ? 'border-primary shadow-[0_0_0_3px_rgba(197,160,89,0.25)] bg-primary/5'
+                    : 'border-zinc-200 bg-white group-hover:border-primary/40'
+                }`}
+              >
+                <span className={`text-[11px] font-bold uppercase tracking-widest ${
+                  !selectedCategoryId ? 'text-primary' : 'text-zinc-500 group-hover:text-zinc-800'
+                }`}>
+                  All
+                </span>
+              </div>
+              <span className={`text-[9px] font-bold uppercase tracking-wider max-w-[60px] text-center leading-tight line-clamp-2 ${
+                !selectedCategoryId ? 'text-primary' : 'text-zinc-500'
+              }`}>
+                All
+              </span>
+            </button>
+
+            {/* Category circles */}
+            {categories.map((cat, idx) => {
+              const img = cat.categoryImage?.url || FALLBACK_IMAGES[idx % FALLBACK_IMAGES.length];
+              const active = selectedCategoryId === cat._id;
+              return (
+                <button
+                  key={cat._id}
+                  type="button"
+                  onClick={() => handleCategorySelect(cat._id)}
+                  className="flex flex-col items-center gap-2 flex-shrink-0 group cursor-pointer"
+                >
+                  <div
+                    className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-200 ${
+                      active
+                        ? 'border-primary shadow-[0_0_0_3px_rgba(197,160,89,0.25)] scale-105'
+                        : 'border-zinc-200 group-hover:border-primary/50 group-hover:scale-105'
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={cat.categoryName}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider max-w-[60px] text-center leading-tight line-clamp-2 ${
+                    active ? 'text-primary' : 'text-zinc-500 group-hover:text-zinc-800'
+                  }`}>
+                    {cat.categoryName}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         {/* 3. Subcategories list (Only visible when a category is selected) */}
         {activeCategoryObj &&

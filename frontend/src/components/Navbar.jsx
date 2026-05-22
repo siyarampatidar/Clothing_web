@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../redux/authSlice";
@@ -12,17 +12,11 @@ import {
   FiHeart,
   FiSearch,
   FiShoppingBag,
-  FiArrowRight,
+  FiHome,
+  FiGrid,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-
-const SUGGESTIONS = [
-  "Atelier Double-Breasted Trench Coat",
-  "Luxury French Terry Oversized Hoodie",
-  "Heritage Raw Selvedge Denim",
-  "Bespoke Tailored Blazer",
-];
 
 const Navbar = () => {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -42,11 +36,7 @@ const Navbar = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const q = params.get("search");
-    if (q) {
-      setSearchQuery(q);
-    } else {
-      setSearchQuery("");
-    }
+    setSearchQuery(q || "");
   }, [location.search]);
 
   useEffect(() => {
@@ -76,11 +66,18 @@ const Navbar = () => {
     }
   };
 
-  const handleCategorySelect = (categoryObj) => {
-    setIsDrawerOpen(false);
-    toast.success(`Browsing CJM Atelier: ${categoryObj.categoryName}`);
-    navigate(`/collection?category=${categoryObj._id}`);
-  };
+  // Desktop nav items
+  const desktopNavItems = [
+    { label: "Home", path: "/home", icon: FiHome },
+    { label: "Collection", path: "/collection", icon: FiGrid },
+    { label: "Wishlist", path: "/wishlist", icon: FiHeart },
+    { label: "Cart", path: "/cart", icon: FiShoppingBag },
+    { label: "Account", path: "/account", icon: FiUser },
+  ];
+
+  const isActive = (path) =>
+    location.pathname === path ||
+    (path === "/home" && location.pathname === "/");
 
   return (
     <>
@@ -140,7 +137,7 @@ const Navbar = () => {
                   transition={{ duration: 0.1 }}
                   className="w-full flex justify-between items-center"
                 >
-                  {/* LEFT: CJM luxury brand logo — Cormorant Garamond italic */}
+                  {/* LEFT: CJM luxury brand logo */}
                   <div className="flex items-center">
                     <Link
                       to="/home"
@@ -152,9 +149,51 @@ const Navbar = () => {
                     </Link>
                   </div>
 
-                  {/* RIGHT: Search and standard action items */}
+                  {/* CENTER: Desktop nav links — lg+ only */}
+                  <div className="hidden lg:flex items-center gap-0.5">
+                    {desktopNavItems.map((item) => {
+                      const active = isActive(item.path);
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.label}
+                          to={item.path}
+                          className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all duration-200 ${
+                            active
+                              ? "text-primary bg-primary-light"
+                              : "text-zinc-600 hover:text-zinc-950 hover:bg-stone-100"
+                          }`}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                          {item.label}
+                          {/* Wishlist badge */}
+                          {item.label === "Wishlist" && wishlistItems.length > 0 && (
+                            <span className="ml-0.5 bg-red-500 text-white font-sans text-[7px] font-bold min-w-[14px] h-3.5 px-1 rounded-full flex items-center justify-center">
+                              {wishlistItems.length}
+                            </span>
+                          )}
+                          {/* Cart badge */}
+                          {item.label === "Cart" && cartItems.length > 0 && (
+                            <span className="ml-0.5 bg-primary text-white font-sans text-[7px] font-bold min-w-[14px] h-3.5 px-1 rounded-full flex items-center justify-center">
+                              {cartItems.reduce((s, i) => s + i.quantity, 0)}
+                            </span>
+                          )}
+                          {/* Active indicator */}
+                          {active && (
+                            <motion.div
+                              layoutId="desktopNavPip"
+                              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-primary rounded-full"
+                              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  {/* RIGHT: Search + compact actions */}
                   <div className="flex items-center gap-1.5 sm:gap-3">
-                    {/* Search icon trigger */}
+                    {/* Search */}
                     <button
                       type="button"
                       onClick={() => setIsSearchOpen(true)}
@@ -164,10 +203,10 @@ const Navbar = () => {
                       <FiSearch className="w-5 h-5" />
                     </button>
 
-                    {/* Desktop Only Wishlist and Cart Shortcuts */}
+                    {/* Wishlist icon — sm only (lg uses center nav) */}
                     <Link
                       to="/wishlist"
-                      className="hidden sm:inline-flex p-2.5 rounded-full text-zinc-800 hover:text-primary hover:bg-primary-light transition relative"
+                      className="hidden sm:inline-flex lg:hidden p-2.5 rounded-full text-zinc-800 hover:text-primary hover:bg-primary-light transition relative"
                       title="Wishlist"
                     >
                       <FiHeart className="w-5 h-5" />
@@ -178,24 +217,22 @@ const Navbar = () => {
                       )}
                     </Link>
 
+                    {/* Cart icon — sm only (lg uses center nav) */}
                     <Link
                       to="/cart"
-                      className="hidden sm:inline-flex p-2.5 rounded-full text-zinc-800 hover:text-primary hover:bg-primary-light transition relative"
+                      className="hidden sm:inline-flex lg:hidden p-2.5 rounded-full text-zinc-800 hover:text-primary hover:bg-primary-light transition relative"
                       title="Shopping Bag"
                     >
                       <FiShoppingBag className="w-5 h-5" />
                       {cartItems.length > 0 && (
                         <span className="absolute -top-0.5 -right-0.5 bg-primary text-white font-sans text-[8px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-xs">
-                          {cartItems.reduce(
-                            (sum, item) => sum + item.quantity,
-                            0,
-                          )}
+                          {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
                         </span>
                       )}
                     </Link>
 
-                    {/* Authentication Details / Session trigger (Desktop only) */}
-                    <div className="hidden sm:inline-block relative">
+                    {/* User session — sm only (lg uses center nav Account link) */}
+                    <div className="hidden sm:inline-block lg:hidden relative">
                       {isAuthenticated ? (
                         <>
                           <button
@@ -230,8 +267,6 @@ const Navbar = () => {
                                   exit={{ opacity: 0, y: 8, scale: 0.95 }}
                                   className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-md border border-primary/15 rounded-2xl shadow-xl z-20 py-2 overflow-hidden"
                                 >
-                                  <div className="px-5 border-b border-primary/5">
-                                  </div>
                                   <Link
                                     to="/account"
                                     onClick={() => setIsDropdownOpen(false)}
@@ -283,7 +318,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Global logout modal configuration */}
+      {/* Global logout modal */}
       <Modal
         isOpen={isLogoutOpen}
         onClose={() => setIsLogoutOpen(false)}

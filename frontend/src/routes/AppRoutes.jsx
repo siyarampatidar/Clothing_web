@@ -12,7 +12,7 @@ import VerifyOtp from '../pages/VerifyOtp';
 import Login from '../pages/Login';
 import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
-import Profile from '../pages/Profile';
+// import Profile from '../pages/Profile';
 import Checkout from '../pages/Checkout';
 import AdminConsole from '../pages/admin/AdminConsole';
 
@@ -39,7 +39,7 @@ const AppRoutes = () => {
       <Route path="/collection" element={<Collection />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/wishlist" element={<Wishlist />} />
-      <Route path="/account" element={<Account />} />
+      {/* <Route path="/account" element={<Account />} /> */}
 
       {/* Guest Authentication Routes */}
       <Route
@@ -79,10 +79,10 @@ const AppRoutes = () => {
 
       {/* Protected Profile/Dashboard Route (Fallback support) */}
       <Route
-        path="/profile"
+        path="/account"
         element={
           <ProtectedRoute>
-            <Profile />
+            <Account />
           </ProtectedRoute>
         }
       />
