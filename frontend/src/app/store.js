@@ -5,6 +5,7 @@ import productReducer from '../redux/productSlice';
 import wishlistReducer from '../redux/wishlistSlice';
 import cartReducer from '../redux/cartSlice';
 import addressReducer from '../redux/addressSlice';
+import adminUserReducer from '../redux/adminUserSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +15,9 @@ export const store = configureStore({
     wishlist: wishlistReducer,
     cart: cartReducer,
     addresses: addressReducer,
+    adminUsers: adminUserReducer,
   },
 });
 
 export default store;
+

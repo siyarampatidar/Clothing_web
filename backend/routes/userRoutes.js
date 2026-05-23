@@ -4,6 +4,11 @@ import {
   changePassword,
   uploadProfileImage,
   removeProfileImage,
+  getAllUsers,
+  getSingleUser,
+  adminUpdateUser,
+  toggleUserStatus,
+  adminDeleteUser,
 } from '../controllers/userController.js';
 import {
   addAddress,
@@ -12,7 +17,7 @@ import {
   deleteAddress,
   setDefaultAddress,
 } from '../controllers/addressController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, authorize } from '../middleware/authMiddleware.js';
 import { upload } from '../config/cloudinary.js';
 
 const router = express.Router();
@@ -32,4 +37,12 @@ router.put('/addresses/:id', updateAddress);
 router.delete('/addresses/:id', deleteAddress);
 router.put('/addresses/:id/default', setDefaultAddress);
 
+// Admin-only User Management routes
+router.get('/admin', authorize('admin'), getAllUsers);
+router.get('/admin/:id', authorize('admin'), getSingleUser);
+router.put('/admin/:id', authorize('admin'), upload.single('image'), adminUpdateUser);
+router.put('/admin/:id/status', authorize('admin'), toggleUserStatus);
+router.delete('/admin/:id', authorize('admin'), adminDeleteUser);
+
 export default router;
+

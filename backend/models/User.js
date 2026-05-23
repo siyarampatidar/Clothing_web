@@ -1,37 +1,40 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Full Name is required'],
+      required: [true, "Full Name is required"],
       trim: true,
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, "Email is required"],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address'],
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please provide a valid email address",
+      ],
     },
     mobile: {
       type: String,
-      required: [true, 'Mobile number is required'],
+      required: [true, "Mobile number is required"],
       unique: true,
       trim: true,
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters long'],
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
       select: false, // Don't return password in queries by default
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: ["user", "admin"],
+      default: "user",
     },
     isVerified: {
       type: Boolean,
@@ -48,11 +51,11 @@ const userSchema = new mongoose.Schema(
     profileImage: {
       url: {
         type: String,
-        default: '',
+        default: "",
       },
       public_id: {
         type: String,
-        default: '',
+        default: "",
       },
     },
     resetPasswordToken: {
@@ -63,15 +66,19 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
   try {
@@ -88,5 +95,5 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;

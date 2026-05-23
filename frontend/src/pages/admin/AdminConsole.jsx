@@ -15,7 +15,8 @@ import {
   FiPhone, 
   FiCalendar,
   FiEye,
-  FiEyeOff
+  FiEyeOff,
+  FiUsers
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { updateProfile, uploadAvatar, removeAvatar, logoutUser } from '../../redux/authSlice';
@@ -25,6 +26,7 @@ import { API_ENDPOINTS } from '../../api/apis';
 // Imported modular components
 import AdminCategoryView from './AdminCategoryView';
 import AdminItemView from './AdminItemView';
+import AdminUserView from './AdminUserView';
 
 // =========================================================================
 // 2. ADMIN PROFILE PAGE SUB-COMPONENT
@@ -490,11 +492,12 @@ const AdminConsole = () => {
       });
   };
 
-  // Dedicated Sidebar Menu Links: profile, categories, items.
+  // Dedicated Sidebar Menu Links: profile, categories, items, users.
   const sidebarLinks = [
     { name: 'Profile', path: 'profile', icon: FiUser },
     { name: 'Categories', path: 'categories', icon: FiGrid },
     { name: 'Items', path: 'items', icon: FiLayers },
+    { name: 'User Details', path: 'users', icon: FiUsers },
   ];
 
   const currentPathEnd = location.pathname.split('/').pop();
@@ -630,6 +633,7 @@ const AdminConsole = () => {
             <Route path="profile" element={<AdminProfileView onOpenLogout={() => setIsLogoutOpen(true)} />} />
             <Route path="categories" element={<AdminCategoryView />} />
             <Route path="items" element={<AdminItemView />} />
+            <Route path="users" element={<AdminUserView />} />
             <Route path="*" element={<Navigate to="profile" replace />} />
           </Routes>
         </main>

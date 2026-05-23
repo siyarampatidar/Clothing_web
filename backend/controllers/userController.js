@@ -181,3 +181,196 @@ export const removeProfileImage = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Get all registered users (Admin only)
+ * @route   GET /api/users/admin
+ * @access  Private/Admin
+ */
+export const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find({ role: 'user' }).sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get details of a single user (Admin only)
+ * @route   GET /api/users/admin/:id
+ * @access  Private/Admin
+ */
+export const getSingleUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Update any user's profile details (Admin only)
+ * @route   PUT /api/users/admin/:id
+ * @access  Private/Admin
+ */
+export const adminUpdateUser = async (req, res, next) => {
+  try {
+    const { name, email, mobile } = req.body;
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Validation checks
+    if (name && name.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Full name must be at least 2 characters.' });
+    }
+
+    if (email && !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+      return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
+    }
+
+    if (mobile && !/^\+?[1-9]\d{1,14}$/.test(mobile.replace(/\s+/g, ''))) {
+      return res.status(400).json({ success: false, message: 'Invalid mobile number format.' });
+    }
+
+    // Check email availability
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+      const emailExists = await User.findOne({ email: email.toLowerCase() });
+      if (emailExists) {
+        return res.status(400).json({ success: false, message: 'This email is already linked to another account.' });
+      }
+      user.email = email.toLowerCase();
+    }
+
+    // Check mobile availability
+    if (mobile && mobile !== user.mobile) {
+      const mobileExists = await User.findOne({ mobile });
+      if (mobileExists) {
+        return res.status(400).json({ success: false, message: 'This mobile number is already linked to another account.' });
+      }
+      user.mobile = mobile;
+    }
+
+    if (name) user.name = name.trim();
+
+    // Check if new profile image is uploaded
+    if (req.file) {
+      const oldPublicId = user.profileImage?.public_id;
+
+      // Upload buffer directly to Cloudinary
+      const cloudinaryResult = await uploadToCloudinary(req.file.buffer);
+
+      user.profileImage = {
+        url: cloudinaryResult.secure_url,
+        public_id: cloudinaryResult.public_id,
+      };
+
+      // Delete old photo in background
+      if (oldPublicId) {
+        deleteFromCloudinary(oldPublicId).catch((err) =>
+          console.error('Async deletion of old user photo failed:', err)
+        );
+      }
+    }
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'User details updated successfully.',
+      user: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Toggle user status (Active/Deactivated) (Admin only)
+ * @route   PUT /api/users/admin/:id/status
+ * @access  Private/Admin
+ */
+export const toggleUserStatus = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+
+    // Safety check: block deactivating own account
+    if (req.user._id.toString() === userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Security Lockout Warning: You cannot deactivate your own administrative account.',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Toggle logic: if user is explicitly deactivated (false), activate them (true). Otherwise, deactivate them (false).
+    user.isActive = user.isActive === false ? true : false;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User account has been successfully ${user.isActive ? 'activated' : 'deactivated'}.`,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Delete user account (Admin only)
+ * @route   DELETE /api/users/admin/:id
+ * @access  Private/Admin
+ */
+export const adminDeleteUser = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+
+    // Safety check: block deleting own account
+    if (req.user._id.toString() === userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Security Lockout Warning: You cannot delete your own administrative account.',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Clean up photo on Cloudinary if present
+    const publicId = user.profileImage?.public_id;
+    if (publicId) {
+      await deleteFromCloudinary(publicId);
+    }
+
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({
+      success: true,
+      message: 'User account has been permanently deleted.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

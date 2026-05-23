@@ -46,4 +46,12 @@ export const API_ENDPOINTS = {
   GET_WISHLIST: '/wishlist',
   TOGGLE_WISHLIST: '/wishlist/toggle',
   REMOVE_FROM_WISHLIST: '/wishlist/remove',
+
+  // Admin User Management endpoints
+  ADMIN_GET_USERS: '/users/admin',
+  ADMIN_GET_USER: (id) => `/users/admin/${id}`,
+  ADMIN_UPDATE_USER: (id) => `/users/admin/${id}`,
+  ADMIN_TOGGLE_STATUS: (id) => `/users/admin/${id}/status`,
+  ADMIN_DELETE_USER: (id) => `/users/admin/${id}`,
 };
+
