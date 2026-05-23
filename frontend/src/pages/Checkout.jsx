@@ -17,7 +17,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { fetchAddresses, setDefaultAddressAction } from '../redux/addressSlice';
-import { clearCart } from '../redux/cartSlice';
+import { clearCartDB } from '../redux/cartSlice';
 import AddressFormModal from '../components/AddressFormModal';
 
 const Checkout = () => {
@@ -96,22 +96,22 @@ const Checkout = () => {
       setTimeout(() => {
         toast.loading('Authorizing secure transaction...', { id: 'order-placement' });
         setTimeout(() => {
-          const randomOrderId = 'CJM-' + Math.floor(100000 + Math.random() * 900000);
+          const randomOrderId = 'CJP-' + Math.floor(100000 + Math.random() * 900000);
           setOrderId(randomOrderId);
           setIsProcessing(false);
           setStep(3);
-          dispatch(clearCart());
+          dispatch(clearCartDB());
           toast.success('Payment authorized and order placed successfully!', { id: 'order-placement' });
         }, 1500);
       }, 1500);
     } else {
       toast.loading('Registering Cash on Delivery shipment details...', { id: 'order-placement' });
       setTimeout(() => {
-        const randomOrderId = 'CJM-' + Math.floor(100000 + Math.random() * 900000);
+        const randomOrderId = 'CJP-' + Math.floor(100000 + Math.random() * 900000);
         setOrderId(randomOrderId);
         setIsProcessing(false);
         setStep(3);
-        dispatch(clearCart());
+        dispatch(clearCartDB());
         toast.success('Order registered successfully under Cash on Delivery!', { id: 'order-placement' });
       }, 1500);
     }
@@ -144,7 +144,7 @@ const Checkout = () => {
 
                 {/* Header text */}
                 <div className="space-y-3">
-                  <span className="text-[10px] font-bold tracking-[0.4em] text-primary uppercase block">CJM ATELIER</span>
+                  <span className="text-[10px] font-bold tracking-[0.4em] text-primary uppercase block">CJP ATELIER</span>
                   <h1 className="text-3xl font-light font-display text-zinc-950">Order Placed Successfully</h1>
                   <p className="text-xs sm:text-sm text-luxury-gray leading-relaxed max-w-md mx-auto font-medium">
                     Thank you for your patronage. Your designer selection has been successfully reserved. A summary details notification is sent to your registered email.
@@ -412,7 +412,7 @@ const Checkout = () => {
                                 <div className="space-y-1">
                                   <h4 className="text-xs font-bold uppercase tracking-wider">Cash on Delivery</h4>
                                   <p className="text-xs text-luxury-gray leading-relaxed font-medium">
-                                    Receive your CJM tailoring box and pay the delivery executive at your doorstep. We accept Cash, Card, or UPI on delivery.
+                                    Receive your CJP tailoring box and pay the delivery executive at your doorstep. We accept Cash, Card, or UPI on delivery.
                                   </p>
                                 </div>
                               </div>

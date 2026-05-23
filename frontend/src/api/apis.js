@@ -34,4 +34,16 @@ export const API_ENDPOINTS = {
   UPDATE_ADDRESS: (id) => `/users/addresses/${id}`,
   DELETE_ADDRESS: (id) => `/users/addresses/${id}`,
   SET_DEFAULT_ADDRESS: (id) => `/users/addresses/${id}/default`,
+
+  // Cart endpoints
+  GET_CART: '/cart',
+  ADD_TO_CART: '/cart/add',
+  UPDATE_CART_ITEM: '/cart/update',
+  REMOVE_FROM_CART: '/cart/remove',
+  CLEAR_CART: '/cart/clear',
+
+  // Wishlist endpoints
+  GET_WISHLIST: '/wishlist',
+  TOGGLE_WISHLIST: '/wishlist/toggle',
+  REMOVE_FROM_WISHLIST: '/wishlist/remove',
 };

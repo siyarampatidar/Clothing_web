@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { verifyOtpCode, resendOtpCode } from '../redux/authSlice';
 import { motion } from 'framer-motion';
-import { FiCheckCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const VerifyOtp = () => {
@@ -46,7 +46,7 @@ const VerifyOtp = () => {
     dispatch(verifyOtpCode({ email: otpEmail, otp }))
       .unwrap()
       .then((data) => {
-        toast.success('Patron session established. Welcome to CJM.');
+        toast.success('Patron session established. Welcome to CJP.');
         navigate('/profile');
       })
       .catch((err) => {
@@ -84,6 +84,15 @@ const VerifyOtp = () => {
         <div className="luxury-card p-8 sm:p-10 rounded-[28px] relative overflow-hidden text-center">
           {/* Top Line Accent */}
           <div className="absolute top-0 left-0 right-0 h-[2px] gold-gradient" />
+
+          {/* Back to Home Button */}
+          <Link
+            to="/home"
+            className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-luxury-gray hover:text-primary transition duration-300 mb-5 group"
+          >
+            <FiArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" />
+            Home
+          </Link>
 
           {/* Icon */}
           <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">

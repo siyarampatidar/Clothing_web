@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../redux/authSlice';
 import { motion } from 'framer-motion';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const Register = () => {
@@ -70,6 +70,15 @@ const Register = () => {
         <div className="luxury-card p-8 sm:p-10 rounded-[28px] relative overflow-hidden">
           {/* Accent Gold Stripe */}
           <div className="absolute top-0 left-0 right-0 h-[2px] gold-gradient" />
+
+          {/* Back to Home Button */}
+          <Link
+            to="/home"
+            className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-luxury-gray hover:text-primary transition duration-300 mb-5 group"
+          >
+            <FiArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" />
+            Home
+          </Link>
 
           {/* Heading */}
           <div className="text-center mb-8">

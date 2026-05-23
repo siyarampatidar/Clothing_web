@@ -232,7 +232,7 @@ const Account = () => {
 
                 <div className="space-y-3">
                   <span className="text-[10px] font-bold tracking-[0.4em] text-primary uppercase block">
-                    CJM MEMBERS CLUB
+                    CJP MEMBERS CLUB
                   </span>
                   <h1 className="text-3xl font-light font-display text-zinc-950">
                     Exclusive Entrance
@@ -358,7 +358,7 @@ const Account = () => {
                     </div>
                     <div className="flex-1 text-left">
                       <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-950">
-                        Edit User Details
+                        Update Profile
                       </h4>
                       <p className="text-[11px] font-medium text-luxury-gray leading-tight mt-0.5">
                         Revise name, phone number, and upload avatar.
@@ -477,8 +477,8 @@ const Account = () => {
               {/* Header */}
               <div className="px-6 py-4 border-b border-stone-100 flex justify-between items-center bg-ivory">
                 <div>
-                  <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">CJM ATELIER</span>
-                  <h3 className="text-lg font-light font-display text-zinc-950">Edit User Details</h3>
+                  <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">CJP ATELIER</span>
+                  <h3 className="text-lg font-light font-display text-zinc-950">Update Profile</h3>
                 </div>
                 <button
                   onClick={() => setIsEditProfileOpen(false)}
@@ -622,7 +622,7 @@ const Account = () => {
               {/* Header */}
               <div className="px-6 py-4 border-b border-stone-100 flex justify-between items-center bg-ivory">
                 <div>
-                  <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">CJM ATELIER</span>
+                  <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">CJP ATELIER</span>
                   <h3 className="text-lg font-light font-display text-zinc-950">Change Password</h3>
                 </div>
                 <button
@@ -715,7 +715,7 @@ const Account = () => {
         onClose={() => setIsLogoutOpen(false)}
         onConfirm={handleLogoutConfirm}
         title="Close Session"
-        message="Are you certain you wish to end your Patron session with CJM Boutique?"
+        message="Are you certain you wish to end your Patron session with CJP Boutique?"
         confirmText="Confirm Logout"
         cancelText="Cancel"
       />

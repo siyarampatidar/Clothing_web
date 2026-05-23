@@ -46,6 +46,15 @@ const ForgotPassword = () => {
           {/* Top Line Accent */}
           <div className="absolute top-0 left-0 right-0 h-[2px] gold-gradient" />
 
+          {/* Back to Home Button */}
+          <Link
+            to="/home"
+            className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-luxury-gray hover:text-primary transition duration-300 mb-5 group"
+          >
+            <FiArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" />
+            Home
+          </Link>
+
           {isSent ? (
             <div className="text-center py-4">
               <div className="mx-auto w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 mb-6">
@@ -76,7 +85,7 @@ const ForgotPassword = () => {
                   Forgot Password
                 </h2>
                 <p className="mt-2.5 text-xs font-medium text-luxury-gray uppercase tracking-widest leading-relaxed">
-                  Recover your CJM account credentials
+                  Recover your CJP account credentials
                 </p>
               </div>
 

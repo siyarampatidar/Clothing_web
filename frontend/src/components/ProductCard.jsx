@@ -2,8 +2,8 @@ import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { FiHeart, FiShoppingBag, FiShare2 } from "react-icons/fi";
-import { toggleWishlist } from "../redux/wishlistSlice";
-import { addToCart } from "../redux/cartSlice";
+import { toggleWishlistDB } from "../redux/wishlistSlice";
+import { addToCartDB } from "../redux/cartSlice";
 import toast from "react-hot-toast";
 
 const ProductCard = ({ product, onOpenDetail }) => {
@@ -61,7 +61,7 @@ const ProductCard = ({ product, onOpenDetail }) => {
       });
       return;
     }
-    dispatch(toggleWishlist(product));
+    dispatch(toggleWishlistDB(product._id));
     if (isWishlisted) {
       toast.success(`${product.productName} removed from Wishlist.`, {
         style: { background: "#111", color: "#faf9f6", borderRadius: "12px" },
@@ -100,11 +100,17 @@ const ProductCard = ({ product, onOpenDetail }) => {
     const defaultColor = parsedColors[0] || "Nordic Sand";
 
     dispatch(
-      addToCart({
-        product,
+      addToCartDB({
+        productId: product._id,
+        name: product.productName,
+        category: product.category?.categoryName || 'Boutique',
+        price: product.discountPrice || product.price,
+        originalPrice: product.price,
         size: defaultSize,
         color: defaultColor,
         quantity: 1,
+        image: product.images?.[0]?.url || '',
+        stockQuantity: product.stockQuantity,
       }),
     );
 
@@ -273,7 +279,7 @@ const ProductCard = ({ product, onOpenDetail }) => {
       <div className="pt-4 pb-5 px-4 text-center flex-1 flex flex-col justify-between">
         <div>
           <span className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase">
-            {product.brand || product.category?.categoryName || "CJM ATELIER"}
+            {product.brand || product.category?.categoryName || "CJP ATELIER"}
           </span>
           <h3 className="text-sm font-semibold text-zinc-950 hover:text-primary transition duration-300 line-clamp-1 mt-0.5 font-sans">
             {product.productName}

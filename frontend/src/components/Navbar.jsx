@@ -137,14 +137,14 @@ const Navbar = () => {
                   transition={{ duration: 0.1 }}
                   className="w-full flex justify-between items-center"
                 >
-                  {/* LEFT: CJM luxury brand logo */}
+                  {/* LEFT: CJP luxury brand logo */}
                   <div className="flex items-center">
                     <Link
                       to="/home"
                       className="flex flex-col items-start group select-none gap-0.5"
                     >
                       <span className="brand-logo text-zinc-950 transition duration-300 group-hover:text-primary">
-                        CJM
+                        CJP
                       </span>
                     </Link>
                   </div>
@@ -324,7 +324,7 @@ const Navbar = () => {
         onClose={() => setIsLogoutOpen(false)}
         onConfirm={handleLogoutConfirm}
         title="Close Session"
-        message="Are you certain you wish to end your Patron session with CJM Boutique?"
+        message="Are you certain you wish to end your Patron session with CJP Boutique?"
         confirmText="Confirm Logout"
         cancelText="Cancel"
       />

@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../api/axiosInstance';
 import { API_ENDPOINTS } from '../api/apis';
+import { clearCartLocal } from './cartSlice';
+import { clearWishlistLocal } from './wishlistSlice';
 
 // Retrieve token from localStorage if fallback needed
 const initialToken = localStorage.getItem('token') || null;
@@ -97,6 +99,12 @@ export const logoutUser = createAsyncThunk('auth/logout', async (_, thunkAPI) =>
     await axiosInstance.post(API_ENDPOINTS.LOGOUT);
     localStorage.removeItem('token');
     localStorage.removeItem('otpEmail');
+    // Remove legacy localStorage keys (if any from before DB migration)
+    localStorage.removeItem('cart');
+    localStorage.removeItem('wishlist');
+    // Clear cart and wishlist from Redux state on logout
+    thunkAPI.dispatch(clearCartLocal());
+    thunkAPI.dispatch(clearWishlistLocal());
     return null;
   } catch (error) {
     const message = error.response?.data?.message || 'Logout failed.';

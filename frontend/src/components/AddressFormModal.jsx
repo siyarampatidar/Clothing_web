@@ -276,7 +276,7 @@ const AddressFormModal = ({ isOpen, onClose, addressToEdit = null }) => {
             {/* Elegant Top Bar */}
             <div className="px-6 py-4 border-b border-stone-100 flex justify-between items-center bg-ivory">
               <div>
-                <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">CJM ATELIER</span>
+                <span className="text-[9px] font-bold tracking-[0.3em] text-primary uppercase block">CJP ATELIER</span>
                 <h3 className="text-xl font-light font-display text-zinc-950">
                   {addressToEdit ? 'Edit Destination Card' : 'Register New Address'}
                 </h3>

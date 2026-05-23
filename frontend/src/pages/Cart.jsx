@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiArrowRight, FiShield, FiLock } from 'react-icons/fi';
-import { removeFromCart, updateQuantity } from '../redux/cartSlice';
+import { removeFromCartDB, updateCartItemDB } from '../redux/cartSlice';
 import toast from 'react-hot-toast';
 
 const Cart = () => {
@@ -14,11 +14,11 @@ const Cart = () => {
   const handleQuantity = (id, size, color, currentQuantity, type) => {
     const newQty = type === 'inc' ? currentQuantity + 1 : currentQuantity - 1;
     if (newQty < 1) return;
-    dispatch(updateQuantity({ id, size, color, quantity: newQty }));
+    dispatch(updateCartItemDB({ productId: id, size, color, quantity: newQty }));
   };
 
   const handleRemove = (id, size, color, name) => {
-    dispatch(removeFromCart({ id, size, color }));
+    dispatch(removeFromCartDB({ productId: id, size, color }));
     toast.success(`${name} removed from your Boutique Bag.`, {
       style: { background: '#111', color: '#faf9f6', borderRadius: '12px' }
     });
@@ -102,7 +102,6 @@ const Cart = () => {
                             {/* Attribute indicators */}
                             <div className="flex flex-wrap gap-2 mt-3 text-[10px] text-luxury-gray font-semibold uppercase tracking-wider">
                               <span className="bg-stone-50 border border-stone-200/50 px-2 py-0.5 rounded-sm">Size: <strong className="text-zinc-900">{item.size}</strong></span>
-                              <span className="bg-stone-50 border border-stone-200/50 px-2 py-0.5 rounded-sm">Color: <strong className="text-zinc-900">{item.color}</strong></span>
                             </div>
                           </div>
 
@@ -206,7 +205,7 @@ const Cart = () => {
               </div>
 
               <div className="space-y-3">
-                <span className="text-[10px] font-bold tracking-[0.4em] text-primary uppercase block">CJM ATELIER</span>
+                <span className="text-[10px] font-bold tracking-[0.4em] text-primary uppercase block">CJP ATELIER</span>
                 <h1 className="text-3xl font-light font-display text-zinc-900 tracking-tight">Your Bag is Empty</h1>
                 <p className="text-xs sm:text-sm text-luxury-gray leading-relaxed max-w-sm mx-auto font-medium">
                   We invite you to discover our latest Atelier linen collections and seasonal runway essentials to refine your look.

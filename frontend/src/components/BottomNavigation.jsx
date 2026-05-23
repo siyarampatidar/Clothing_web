@@ -146,14 +146,14 @@ const BottomNavigation = () => {
   const handleCategoryClick = (categoryObj) => {
     setIsCategorySheetOpen(false);
     // toast.success(
-    //   `Browsing silhouette: ${categoryObj.categoryName} in CJM Atelier`,
+    //   `Browsing silhouette: ${categoryObj.categoryName} in CJP Atelier`,
     // );
     navigate(`/collection?category=${categoryObj._id}`);
   };
 
   const handleSubcategoryClick = (categoryId, subcategoryName) => {
     setIsCategorySheetOpen(false);
-    toast.success(`Browsing: ${subcategoryName} in CJM Atelier`);
+    toast.success(`Browsing: ${subcategoryName} in CJP Atelier`);
     navigate(
       `/collection?category=${categoryId}&subcategory=${encodeURIComponent(subcategoryName)}`,
     );

@@ -157,7 +157,7 @@ const Collection = () => {
   const clearAllFilters = () => {
     setSearchParams({});
     setSortBy("recommended");
-    toast.success("Browsing all CJM silhouettes");
+    toast.success("Browsing all CJP silhouettes");
   };
 
   const FALLBACK_IMAGES = [

@@ -512,7 +512,7 @@ const AdminConsole = () => {
         <div className="p-6 border-b border-[#ece9df] flex items-center justify-between">
           <Link to="/admin" className="flex flex-col select-none cursor-pointer">
             <span className="brand-logo text-zinc-900 tracking-[0.25em] text-2xl font-light italic">
-              CJM
+              CJP
             </span>
             <span className="brand-label text-[#c5a059] tracking-[0.4em] text-[8px] font-bold">
               ATELIER SHELL
@@ -608,7 +608,7 @@ const AdminConsole = () => {
             <FiMenu className="w-6 h-6" />
           </button>
           
-          <span className="brand-logo text-zinc-900 text-xl font-light italic tracking-wider">CJM</span>
+          <span className="brand-logo text-zinc-900 text-xl font-light italic tracking-wider">CJP</span>
           
           {user?.profileImage?.url ? (
             <img
@@ -658,7 +658,7 @@ const AdminConsole = () => {
               </div>
               <h3 className="text-lg font-light text-zinc-950 font-display mb-2">Logout Security Check</h3>
               <p className="text-xs text-luxury-gray mb-6">
-                Are you certain you wish to log out of the CJM administrative console? Doing so will close your active dashboard session.
+                Are you certain you wish to log out of the CJP administrative console? Doing so will close your active dashboard session.
               </p>
               
               <div className="flex gap-3 justify-center">

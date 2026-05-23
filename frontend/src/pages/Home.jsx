@@ -719,7 +719,7 @@ const Home = () => {
             onSubmit={(e) => {
               e.preventDefault();
               toast.success(
-                "Welcome to CJM Atelier Club! Check your inbox shortly.",
+                "Welcome to CJP Atelier Club! Check your inbox shortly.",
                 {
                   style: {
                     background: "#111",

@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiHeart, FiShoppingBag, FiShare2, FiInfo, FiTruck, FiChevronRight, FiAlertTriangle } from 'react-icons/fi';
-import { toggleWishlist } from '../redux/wishlistSlice';
-import { addToCart } from '../redux/cartSlice';
+import { toggleWishlistDB } from '../redux/wishlistSlice';
+import { addToCartDB } from '../redux/cartSlice';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -87,7 +87,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
       });
       return;
     }
-    dispatch(toggleWishlist(product));
+    dispatch(toggleWishlistDB(product._id));
     if (isWishlisted) {
       toast.success('Removed from Wishlist.', {
         style: { background: '#111', color: '#faf9f6', borderRadius: '12px' }
@@ -113,11 +113,17 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
       return;
     }
     
-    dispatch(addToCart({
-      product,
+    dispatch(addToCartDB({
+      productId: product._id,
+      name: product.productName,
+      category: product.category?.categoryName || 'Boutique',
+      price: product.discountPrice || product.price,
+      originalPrice: product.price,
       size: selectedSize,
       color: selectedColor || colors[0],
-      quantity: 1
+      quantity: 1,
+      image: product.images?.[0]?.url || '',
+      stockQuantity: product.stockQuantity,
     }));
 
     toast.success(`${product.productName} added to Bag!`, {
@@ -141,11 +147,17 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
       return;
     }
 
-    dispatch(addToCart({
-      product,
+    dispatch(addToCartDB({
+      productId: product._id,
+      name: product.productName,
+      category: product.category?.categoryName || 'Boutique',
+      price: product.discountPrice || product.price,
+      originalPrice: product.price,
       size: selectedSize,
       color: selectedColor || colors[0],
-      quantity: 1
+      quantity: 1,
+      image: product.images?.[0]?.url || '',
+      stockQuantity: product.stockQuantity,
     }));
     
     onClose();
@@ -315,13 +327,13 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                   {/* Brand & Title */}
                   <div className="space-y-1">
                     <span className="text-[10px] sm:text-xs font-bold tracking-[0.3em] text-primary uppercase block">
-                      {product.brand || 'CJM ATELIER'}
+                      {product.brand || 'CJP ATELIER'}
                     </span>
                     <h1 className="text-2xl sm:text-3xl font-light text-zinc-950 font-display">
                       {product.productName}
                     </h1>
                     <p className="text-xs text-luxury-gray font-semibold tracking-wide">
-                      SKU: {product.sku || 'CJM-2026-NFT'}
+                      SKU: {product.sku || 'CJP-2026-NFT'}
                     </p>
                   </div>
 
@@ -486,7 +498,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                                   className="w-full h-full object-cover"
                                 />
                               </div>
-                              <span className="text-[9px] font-bold text-zinc-400 uppercase block truncate">{simProd.brand || 'CJM'}</span>
+                              <span className="text-[9px] font-bold text-zinc-400 uppercase block truncate">{simProd.brand || 'CJP'}</span>
                               <h4 className="text-[10px] font-bold text-zinc-900 truncate">{simProd.productName}</h4>
                               <div className="flex justify-center items-center gap-1.5 mt-1">
                                 {simProd.discountPrice ? (

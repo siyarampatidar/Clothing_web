@@ -1,73 +1,126 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axiosInstance from '../api/axiosInstance';
+import { API_ENDPOINTS } from '../api/apis';
 
-const getInitialCart = () => {
+// --- Async Thunks ---
+
+export const fetchCart = createAsyncThunk('cart/fetchCart', async (_, thunkAPI) => {
   try {
-    return JSON.parse(localStorage.getItem('cart') || '[]');
+    const response = await axiosInstance.get(API_ENDPOINTS.GET_CART);
+    return response.data.items;
   } catch (error) {
-    console.error('Error loading cart from localStorage:', error);
-    return [];
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch cart.');
   }
-};
+});
 
-const initialState = {
-  items: getInitialCart(),
-};
+export const addToCartDB = createAsyncThunk('cart/addToCart', async (payload, thunkAPI) => {
+  try {
+    const response = await axiosInstance.post(API_ENDPOINTS.ADD_TO_CART, payload);
+    return response.data.items;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to add to cart.');
+  }
+});
 
+export const updateCartItemDB = createAsyncThunk('cart/updateCartItem', async (payload, thunkAPI) => {
+  try {
+    const response = await axiosInstance.put(API_ENDPOINTS.UPDATE_CART_ITEM, payload);
+    return response.data.items;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to update cart.');
+  }
+});
+
+export const removeFromCartDB = createAsyncThunk('cart/removeFromCart', async (payload, thunkAPI) => {
+  try {
+    const response = await axiosInstance.delete(API_ENDPOINTS.REMOVE_FROM_CART, { data: payload });
+    return response.data.items;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to remove from cart.');
+  }
+});
+
+export const clearCartDB = createAsyncThunk('cart/clearCart', async (_, thunkAPI) => {
+  try {
+    await axiosInstance.delete(API_ENDPOINTS.CLEAR_CART);
+    return [];
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to clear cart.');
+  }
+});
+
+// --- Slice ---
 const cartSlice = createSlice({
   name: 'cart',
-  initialState,
+  initialState: {
+    items: [],
+    isLoading: false,
+    error: null,
+  },
   reducers: {
-    addToCart: (state, action) => {
-      const { product, size, color, quantity = 1 } = action.payload;
-      const itemId = product._id;
-      const itemSize = size || 'Standard';
-      const itemColor = color || 'Standard';
-
-      const existingIndex = state.items.findIndex(
-        (item) => item.id === itemId && item.size === itemSize && item.color === itemColor
-      );
-
-      if (existingIndex > -1) {
-        state.items[existingIndex].quantity += quantity;
-      } else {
-        state.items.push({
-          id: itemId,
-          name: product.productName,
-          category: product.category?.categoryName || 'Boutique',
-          price: product.discountPrice || product.price,
-          originalPrice: product.price,
-          size: itemSize,
-          color: itemColor,
-          quantity: quantity,
-          image: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=500&q=80',
-          stockQuantity: product.stockQuantity,
-        });
-      }
-      localStorage.setItem('cart', JSON.stringify(state.items));
-    },
-    removeFromCart: (state, action) => {
-      const { id, size, color } = action.payload;
-      state.items = state.items.filter(
-        (item) => !(item.id === id && item.size === size && (!color || item.color === color))
-      );
-      localStorage.setItem('cart', JSON.stringify(state.items));
-    },
-    updateQuantity: (state, action) => {
-      const { id, size, color, quantity } = action.payload;
-      const item = state.items.find(
-        (item) => item.id === id && item.size === size && (!color || item.color === color)
-      );
-      if (item) {
-        item.quantity = Math.max(1, quantity);
-      }
-      localStorage.setItem('cart', JSON.stringify(state.items));
-    },
-    clearCart: (state) => {
+    // Clear cart locally (used on logout)
+    clearCartLocal: (state) => {
       state.items = [];
-      localStorage.setItem('cart', JSON.stringify([]));
     },
+  },
+  extraReducers: (builder) => {
+    const setItems = (state, action) => {
+      state.isLoading = false;
+      // Normalize: map productId -> id for frontend compatibility
+      state.items = action.payload.map((item) => ({
+        id: item.productId || item.id,
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        originalPrice: item.originalPrice,
+        size: item.size,
+        color: item.color,
+        quantity: item.quantity,
+        image: item.image,
+        stockQuantity: item.stockQuantity,
+      }));
+    };
+
+    builder
+      .addCase(fetchCart.pending, (state) => { state.isLoading = true; })
+      .addCase(fetchCart.fulfilled, setItems)
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(addToCartDB.pending, (state) => { state.isLoading = true; })
+      .addCase(addToCartDB.fulfilled, setItems)
+      .addCase(addToCartDB.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(updateCartItemDB.pending, (state) => { state.isLoading = true; })
+      .addCase(updateCartItemDB.fulfilled, setItems)
+      .addCase(updateCartItemDB.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(removeFromCartDB.pending, (state) => { state.isLoading = true; })
+      .addCase(removeFromCartDB.fulfilled, setItems)
+      .addCase(removeFromCartDB.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(clearCartDB.pending, (state) => { state.isLoading = true; })
+      .addCase(clearCartDB.fulfilled, (state) => {
+        state.isLoading = false;
+        state.items = [];
+      })
+      .addCase(clearCartDB.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
+export const { clearCartLocal } = cartSlice.actions;
 export default cartSlice.reducer;
